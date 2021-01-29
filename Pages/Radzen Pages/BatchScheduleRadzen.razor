@@ -1,0 +1,116 @@
+@page "/batchschedule"
+
+@inherits BatchScheduleRadzenBase;
+@using RestClient.Net;
+@using Models;
+@using Blazorise;
+@using Radzen.Blazor
+@using Radzen;
+@using Newtonsoft.Json;
+@using System.Net.Http.Headers;
+@using FxaPortal.Services;
+
+    <Row>
+        <Column>
+            <Card Margin="Margin.Is4.OnY">
+                <CardHeader>
+                    <CardTitle>
+                        @if (isSaving == true)
+                        {
+                            <div>Batches ...Saving...</div>
+                        }
+                        else
+                        {
+                            <div>Batches</div>
+                        }
+                    </CardTitle>
+                </CardHeader>
+                <CardBody>
+                    <RadzenGrid Count="@batchCount" 
+                                Data="@batchList" 
+                                LoadData="@LoadBatchData" 
+                                AllowSorting="true" 
+                                AllowFiltering="true" 
+                                AllowPaging="true" 
+                                PageSize="18" 
+                                TItem="Batch" 
+                                ColumnWidth="200px"                                
+                                RowSelect="@RowSelected">
+                        <Columns>
+                            <RadzenGridColumn TItem="Batch" Property="BatchId" Title="#" Visible="false" />
+                            <RadzenGridColumn TItem="Batch" Property="BatchBusName" Title="Bus Name" />
+                            <RadzenGridColumn TItem="Batch" Property="BatchAbbr" Title="Batch Abbr" />
+                        </Columns>
+                    </RadzenGrid>
+                </CardBody>
+            </Card>
+        </Column>
+        <Column>
+            <Card Margin="Margin.Is4.OnY">
+                <CardHeader>
+                    <CardTitle>Schedules</CardTitle>
+                </CardHeader>
+                <CardBody>
+                    <RadzenGrid Count="@scheduleCount"
+                                Data="@scheduleList"
+                                LoadData="@LoadScheduleData"
+                                AllowSorting="true"
+                                AllowFiltering="true"
+                                AllowPaging="true"
+                                PageSize="18"
+                                TItem="Schedule"
+                                ColumnWidth="200px"
+                                RowRender="@RowRender"
+                                EditMode="Radzen.DataGridEditMode.Single"
+                                ExpandMode="DataGridExpandMode.Multiple">                               
+                        <Template Context="schedule">
+                            <RadzenGrid AllowFiltering="false" AllowPaging="true" AllowSorting="true" Data="@schedule.ScheduleDays" TItem="ScheduleDay" Style="width: 50%">
+                                <Columns>
+                                    <RadzenGridColumn TItem="ScheduleDay" Property="DayOfWeek" Title="Day" Sortable="false" Filterable="false">
+                                        <Template Context="day">
+                                            @Enum.GetName(typeof(DayOfWeek), day.DayOfWeek)
+                                        </Template>
+                                    </RadzenGridColumn>
+                                    <RadzenGridColumn TItem="ScheduleDay" Property="StartTime" Title="Start Time" Sortable="false">
+                                        <Template Context="day">
+                                            @string.Format("{0:hh\\:mm}", TimeSpan.FromMinutes(day.StartTime))
+                                        </Template>
+                                    </RadzenGridColumn>
+                                    <RadzenGridColumn TItem="ScheduleDay" Property="EndTime" Title="End Time" Sortable="false">
+                                        <Template Context="day">
+                                            @string.Format("{0:hh\\:mm}", TimeSpan.FromMinutes(day.EndTime))
+                                        </Template>
+                                    </RadzenGridColumn>
+                                </Columns>
+                            </RadzenGrid>
+                        </Template>
+                        <Columns>
+                            <RadzenGridColumn TItem="Schedule" Property="ScheduleId" Title="" Visible="false" Sortable="false" Filterable="false">
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="Schedule" Property="IsSelected" Title="" Width="40px">
+                                <Template Context="s">
+                                    <RadzenCheckBox TriState="false" TValue="bool?" Value="s.IsSelected" ValueChanged="@(args => OnScheduleCheckChanged(args,s))"></RadzenCheckBox>
+                                </Template>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="Schedule" Property="Name" Title="Name">
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="Schedule" Property="Description" Title="Description">
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="Schedule" Property="Status" Title="Status">
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="Schedule" Property="RunType" Title="Run Type">
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="Schedule" Property="StartDate" Title="Start Date">
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="Schedule" Property="EndDate" Title="End Date">
+                            </RadzenGridColumn>
+                        </Columns>
+                    </RadzenGrid>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+
+@code {
+ }
+

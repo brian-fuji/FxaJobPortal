@@ -1,0 +1,33 @@
+﻿@page "/"
+
+@inherits IndexBase;
+@using Blazorise.Charts
+@using System.Globalization 
+<Row>
+    <Column ColumnSize="ColumnSize.IsHalf.OnWidescreen">
+        <Card Margin="Margin.Is4.OnY">
+            <CardHeader>
+                <CardTitle>Emails Month by Month</CardTitle>
+            </CardHeader>
+            <CardBody>
+                <Button Outline="true" Clicked="@(async () => await HandleRedraw( lineChart, GetLineChartDataset ))">Redraw</Button>
+            </CardBody>
+            <CardBody>
+                <LineChart @ref="lineChart" TItem="double" />
+            </CardBody>
+        </Card>
+    </Column>
+    <Column ColumnSize="ColumnSize.IsHalf.OnWidescreen">
+        <Card Margin="Margin.Is4.OnY">
+            <CardHeader>
+                <CardTitle>Email transactions for @(CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(DateTime.Today.Month))</CardTitle>
+            </CardHeader>
+            <CardBody>
+                <Button Color="Color.Primary" Outline="true" Clicked="@(async () => await HandleRedraw( barChart, GetBarChartDataset ))">Redraw</Button>
+            </CardBody>
+            <CardBody>
+                <Chart @ref="barChart" Type="ChartType.Bar" TItem="double" />
+            </CardBody>
+        </Card>
+    </Column>
+</Row>

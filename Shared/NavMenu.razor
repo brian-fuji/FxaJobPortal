@@ -1,0 +1,210 @@
+﻿@inherits LayoutComponentBase
+
+<Layout Sider="true">
+    <LayoutSider>
+        <LayoutSiderContent>
+            <Bar Breakpoint="Breakpoint.Desktop"
+                 NavigationBreakpoint="Breakpoint.Tablet"
+                 ThemeContrast="ThemeContrast.Dark"
+                 Mode="BarMode.VerticalInline"
+                 CollapseMode="BarCollapseMode.Small"
+                 @bind-Visible="siderVisible">
+                <BarBrand>
+                    <BarItem>
+                        <BarLink To="/">
+                            FXA Portal
+                        </BarLink>
+                    </BarItem>
+                </BarBrand>
+                <BarMenu>
+                    <BarStart>
+                        <BarItem>
+                            <BarLink To="">
+                                <BarIcon IconName="IconName.Dashboard" />
+                                Dashboard
+                            </BarLink>
+                        </BarItem>
+                        <BarItem>
+                            <BarDropdown>
+                                <BarDropdownToggle>
+                                    <BarIcon IconName="IconName.Wrench" />
+                                    Setup
+                                </BarDropdownToggle>
+                                <BarDropdownMenu>
+                                    <BarDropdownItem To="batches">
+                                        Batches
+                                    </BarDropdownItem>
+                                    <BarDropdownItem To="schedules">
+                                        Schedules
+                                    </BarDropdownItem>
+                                    <BarDropdownItem To="batchschedules">
+                                        Batch Schedules
+                                    </BarDropdownItem>
+                                </BarDropdownMenu>
+                            </BarDropdown>
+                        </BarItem>
+                        <BarItem>
+                            <BarDropdown>
+                                <BarDropdownToggle>
+                                    <BarIcon IconName="IconName.History" />
+                                    Jobs
+                                </BarDropdownToggle>
+                                <BarDropdownMenu>
+                                    <BarDropdownItem To="batchruns">
+                                        Batch Runs
+                                    </BarDropdownItem>
+                                    <BarDropdownItem To="transactions">
+                                        Transactions
+                                    </BarDropdownItem>
+                                </BarDropdownMenu>
+                            </BarDropdown>
+                        </BarItem>
+                        <BarItem>
+                            <BarDropdown>
+                                <BarDropdownToggle>
+                                    <BarIcon IconName="IconName.Edit" />
+                                    Messaging
+                                </BarDropdownToggle>
+                                <BarDropdownMenu>
+                                    <BarDropdownItem To="sendsms">
+                                        Send Sms
+                                    </BarDropdownItem>
+                                    <BarDropdownItem To="sendemail">
+                                        Send Email
+                                    </BarDropdownItem>
+                                </BarDropdownMenu>
+                            </BarDropdown>
+                        </BarItem>
+                    </BarStart>
+                    <BarEnd>
+                        <BarLabel>Fuji Xerox</BarLabel>
+                    </BarEnd>
+                </BarMenu>
+            </Bar>
+        </LayoutSiderContent>
+    </LayoutSider>
+    <Layout>
+        <LayoutHeader Fixed="true">
+            <Bar Style="height: 64px;"
+                 Breakpoint="Breakpoint.Desktop"
+                 Background="Background.Primary"
+                 ThemeContrast="ThemeContrast.Light">
+
+                <BarToggler Clicked="@ToggleSidebar" Style="display:block" />
+                <BarBrand>
+                    <BarItem>
+                        <BarLink To="">
+                            <BarIcon IconName="IconName.Dashboard" />
+                            Xpenser
+                        </BarLink>
+                    </BarItem>
+                </BarBrand>
+                <BarMenu>
+                    <BarStart>
+                        <BarLabel>&nbsp;</BarLabel>
+                    </BarStart>
+                    <BarEnd>
+                        <BarItem>
+                            <BarDropdown>
+                                <BarDropdownToggle><Icon Name="IconName.User" /></BarDropdownToggle>
+                                <BarDropdownMenu Style="padding: 15px; min-width:50px;" RightAligned="true">
+                                    <BarDropdownItem To="Profile">
+                                        Profile
+                                    </BarDropdownItem>
+                                    <BarDropdownItem To="LogOff">
+                                        Log Off
+                                    </BarDropdownItem>
+                                </BarDropdownMenu>
+                            </BarDropdown>
+                        </BarItem>
+                        <BarItem>
+                            <BarLabel>&nbsp;</BarLabel>
+                        </BarItem>
+                    </BarEnd>
+                </BarMenu>
+            </Bar>
+        </LayoutHeader>
+        <LayoutContent Padding="Padding.Is4.OnX">
+            @Body
+        </LayoutContent>
+    </Layout>
+</Layout>
+
+@code{
+    void OnThemeEnabledChanged(bool value)
+    {
+        if (Theme == null)
+            return;
+
+        Theme.Enabled = value;
+
+        Theme.ThemeHasChanged();
+    }
+
+    void OnGradientChanged(bool value)
+    {
+        if (Theme == null)
+            return;
+
+        Theme.IsGradient = value;
+
+        //if ( Theme.GradientOptions == null )
+        //    Theme.GradientOptions = new GradientOptions();
+
+        //Theme.GradientOptions.BlendPercentage = 80;
+
+        Theme.ThemeHasChanged();
+    }
+
+    void OnRoundedChanged(bool value)
+    {
+        if (Theme == null)
+            return;
+
+        Theme.IsRounded = value;
+
+        Theme.ThemeHasChanged();
+    }
+
+    void OnThemeColorChanged(string value)
+    {
+        if (Theme == null)
+            return;
+
+        if (Theme.ColorOptions == null)
+            Theme.ColorOptions = new ThemeColorOptions();
+
+        if (Theme.BackgroundOptions == null)
+            Theme.BackgroundOptions = new ThemeBackgroundOptions();
+
+        if (Theme.TextColorOptions == null)
+            Theme.TextColorOptions = new ThemeTextColorOptions();
+
+        Theme.ColorOptions.Primary = value;
+        Theme.BackgroundOptions.Primary = value;
+        Theme.TextColorOptions.Primary = value;
+
+        if (Theme.InputOptions == null)
+            Theme.InputOptions = new ThemeInputOptions();
+
+        //Theme.InputOptions.Color = value;
+        Theme.InputOptions.CheckColor = value;
+        Theme.InputOptions.SliderColor = value;
+
+        Theme.ThemeHasChanged();
+    }
+
+
+    private bool siderVisible = true;
+    private bool uiElementsVisible = true;
+
+    RenderFragment customIcon =@<img src="/brand-logo.png" style="width:32px; height: 32px" />;
+
+void ToggleSidebar()
+{
+siderVisible = !siderVisible;
+StateHasChanged();
+}
+
+[CascadingParameter] protected Theme Theme { get; set; }
+}

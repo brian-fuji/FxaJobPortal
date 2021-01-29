@@ -1,0 +1,248 @@
+﻿@page "/add-schedule"
+
+@inherits AddEditScheduleBase
+
+@using Radzen
+@using Radzen.Blazor
+@using Models
+<RadzenContent Container="mymain">
+    <ChildContent>
+        <div class="row">
+            <div class="col-md-12">
+                <RadzenTemplateForm Data="@Schedule" Visible="@(Schedule != null)" TItem="Schedule" Submit="@Form0Submit">
+                    <ChildContent>
+                        <div style="margin-bottom: 1rem" class="row">
+                            <div class="col-md-3">
+                                <RadzenLabel Text="Name" Component="Name" style="width: 100%">
+                                </RadzenLabel>
+                            </div>
+                            <div class="col-md-9">
+                                <RadzenTextBox style="width: 100%" @bind-Value="@(Schedule.Name)" Name="Name">
+                                </RadzenTextBox>
+                                <RadzenRequiredValidator Component="Name" Text="Name is required" Popup="true" Style="position: inherit" />
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem" class="row">
+                            <div class="col-md-3">
+                                <RadzenLabel Text="Description" Component="Description" style="width: 100%">
+                                </RadzenLabel>
+                            </div>
+                            <div class="col-md-9">
+                                <RadzenTextBox style="width: 100%" @bind-Value="@(Schedule.Description)" Name="Description">
+                                </RadzenTextBox>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem" class="row">
+                            <div class="col-md-3">
+                                <RadzenLabel Text="Run Type" Component="RunType" style="width: 100%">
+                                </RadzenLabel>
+                            </div>
+                            <div class="col-md-9">
+                                <RadzenDropDown style="width: 100%" @bind-Value="@(Schedule.RunType)" Name="RunType" Data="runTypeData">
+                                </RadzenDropDown>
+                                <RadzenRequiredValidator Component="RunType" Text="Run Type is required" Popup="true" Style="position: inherit" />
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem" class="row">
+                            <div class="col-md-3">
+                                <RadzenLabel Text="Status" Component="Status" style="width: 100%">
+                                </RadzenLabel>
+                            </div>
+                            <div class="col-md-9">
+                                <RadzenNumeric style="width: 100%" @bind-Value="@(Schedule.Status)" Name="Status">
+                                </RadzenNumeric>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem" class="row">
+                            <div class="col-md-3">
+                                <RadzenLabel Text="Start Date" Component="StartDate" style="width: 100%">
+                                </RadzenLabel>
+                            </div>
+                            <div class="col-md-9">
+                                <RadzenDatePicker style="width: 100%" @bind-Value="@(Schedule.StartDate)" Name="StartDate">
+                                </RadzenDatePicker>
+                                <RadzenRequiredValidator Component="StartDate" Text="Start Date is required" Popup="true" Style="position: inherit" />
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem" class="row">
+                            <div class="col-md-3">
+                                <RadzenLabel Text="End Date" Component="EndDate" style="width: 100%">
+                                </RadzenLabel>
+                            </div>
+                            <div class="col-md-9">
+                                <RadzenDatePicker style="width: 100%" @bind-Value="@(Schedule.EndDate)" Name="EndDate">
+                                </RadzenDatePicker>
+                                <RadzenRequiredValidator Component="EndDate" Text="End Date is required" Popup="true" Style="position: inherit" />
+                                <RadzenCompareValidator  Operator="CompareOperator.GreaterThan" Value="Schedule.StartDate" Component="EndDate" Text="End Date must be after Start Date" Popup="true" Style="position: inherit" />
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem" class="row">
+                            <div class="col-md-2">
+                            </div>
+                            <div class="col-md-3">
+                                <h3>Day</h3>
+                            </div>
+                            <div class="col-md-3">
+                                <h3>Start Time</h3>
+                            </div>
+                            <div class="col-md-3">
+                                <h3>End Time</h3>
+                            </div>
+                            <div class="col-md-1">
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem" class="row">
+                            <div class="col-md-2">
+                            </div>
+                            <div class="col-md-3">
+                                <div style=" display: flex; margin: auto; padding-top: 8px;">
+                                    <RadzenCheckBox TValue="bool?" TriState="false" Value="ScheduleDays[1].IsSelected" ValueChanged="@(args => IsSelected(args, 1))" Name="Monday">
+                                    </RadzenCheckBox>
+                                    <RadzenLabel Style="margin-left: 5px;" Text="Monday" Component="Monday">
+                                    </RadzenLabel>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <RadzenDatePicker TValue="DateTime?" Value="DateTime.Today.Add(TimeSpan.FromMinutes(ScheduleDays[1].StartTime))" ShowTime="true" TimeOnly="true" DateFormat="HH:mm" ValueChanged="@(args => TimeChanged(args, 1, true))" />
+                            </div>
+                            <div class="col-md-3">
+                                <RadzenDatePicker TValue="DateTime?" Value="DateTime.Today.Add(TimeSpan.FromMinutes(ScheduleDays[1].EndTime))" ShowTime="true" TimeOnly="true" DateFormat="HH:mm" ValueChanged="@(args => TimeChanged(args, 1, false))" />
+                            </div>
+                            <div class="col-md-1">
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem" class="row">
+                            <div class="col-md-2">
+                            </div>
+                            <div class="col-md-3">
+                                <div style=" display: flex; margin: auto; padding-top: 8px;">
+                                    <RadzenCheckBox TValue="bool?" TriState="false" Value="ScheduleDays[2].IsSelected" ValueChanged="@(args => IsSelected(args, 2))" Name="Tuesday">
+                                    </RadzenCheckBox>
+                                    <RadzenLabel Style="margin-left: 5px;" Text="Tuesday" Component="Tuesday">
+                                    </RadzenLabel>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <RadzenDatePicker TValue="DateTime?" Value="DateTime.Today.Add(TimeSpan.FromMinutes(ScheduleDays[2].StartTime))" ShowTime="true" TimeOnly="true" DateFormat="HH:mm" ValueChanged="@(args => TimeChanged(args, 2, true))" />
+                            </div>
+                            <div class="col-md-3">
+                                <RadzenDatePicker TValue="DateTime?" Value="DateTime.Today.Add(TimeSpan.FromMinutes(ScheduleDays[2].EndTime))" ShowTime="true" TimeOnly="true" DateFormat="HH:mm" ValueChanged="@(args => TimeChanged(args, 2, false))" />
+                            </div>
+                            <div class="col-md-1">
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem" class="row">
+                            <div class="col-md-2">
+                            </div>
+                            <div class="col-md-3">
+                                <div style=" display: flex; margin: auto; padding-top: 8px;">
+                                    <RadzenCheckBox TValue="bool?" TriState="false" Value="ScheduleDays[3].IsSelected" ValueChanged="@(args => IsSelected(args, 3))" Name="Wednesday">
+                                    </RadzenCheckBox>
+                                    <RadzenLabel Style="margin-left: 5px;" Text="Wednesday" Component="Wednesday">
+                                    </RadzenLabel>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <RadzenDatePicker TValue="DateTime?" Value="DateTime.Today.Add(TimeSpan.FromMinutes(ScheduleDays[3].StartTime))" ShowTime="true" TimeOnly="true" DateFormat="HH:mm" ValueChanged="@(args => TimeChanged(args, 3, true))" />
+                            </div>
+                            <div class="col-md-3">
+                                <RadzenDatePicker TValue="DateTime?" Value="DateTime.Today.Add(TimeSpan.FromMinutes(ScheduleDays[3].EndTime))" ShowTime="true" TimeOnly="true" DateFormat="HH:mm" ValueChanged="@(args => TimeChanged(args, 3, false))" />
+                            </div>
+                            <div class="col-md-1">
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem" class="row">
+                            <div class="col-md-2">
+                            </div>
+                            <div class="col-md-3">
+                                <div style=" display: flex; margin: auto; padding-top: 8px;">
+                                    <RadzenCheckBox TValue="bool?" TriState="false" Value="ScheduleDays[4].IsSelected" ValueChanged="@(args => IsSelected(args, 4))" Name="Thursday">
+                                    </RadzenCheckBox>
+                                    <RadzenLabel Style="margin-left: 5px;" Text="Thursday" Component="Thursday">
+                                    </RadzenLabel>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <RadzenDatePicker TValue="DateTime?" Value="DateTime.Today.Add(TimeSpan.FromMinutes(ScheduleDays[4].StartTime))" ShowTime="true" TimeOnly="true" DateFormat="HH:mm" ValueChanged="@(args => TimeChanged(args, 4, true))" />
+                            </div>
+                            <div class="col-md-3">
+                                <RadzenDatePicker TValue="DateTime?" Value="DateTime.Today.Add(TimeSpan.FromMinutes(ScheduleDays[4].EndTime))" ShowTime="true" TimeOnly="true" DateFormat="HH:mm" ValueChanged="@(args => TimeChanged(args, 4, false))" />
+                            </div>
+                            <div class="col-md-1">
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem" class="row">
+                            <div class="col-md-2">
+                            </div>
+                            <div class="col-md-3">
+                                <div style=" display: flex; margin: auto; padding-top: 8px;">
+                                    <RadzenCheckBox TValue="bool?" TriState="false" Value="ScheduleDays[5].IsSelected" ValueChanged="@(args => IsSelected(args, 5))" Name="Friday">
+                                    </RadzenCheckBox>
+                                    <RadzenLabel Style="margin-left: 5px;" Text="Friday" Component="Friday">
+                                    </RadzenLabel>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <RadzenDatePicker TValue="DateTime?" Value="DateTime.Today.Add(TimeSpan.FromMinutes(ScheduleDays[5].StartTime))" ShowTime="true" TimeOnly="true" DateFormat="HH:mm" ValueChanged="@(args => TimeChanged(args, 5, true))" />
+                            </div>
+                            <div class="col-md-3">
+                                <RadzenDatePicker TValue="DateTime?" Value="DateTime.Today.Add(TimeSpan.FromMinutes(ScheduleDays[5].EndTime))" ShowTime="true" TimeOnly="true" DateFormat="HH:mm" ValueChanged="@(args => TimeChanged(args, 5, false))" />
+                            </div>
+                            <div class="col-md-1">
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem" class="row">
+                            <div class="col-md-2">
+                            </div>
+                            <div class="col-md-3">
+                                <div style=" display: flex; margin: auto; padding-top: 8px;">
+                                    <RadzenCheckBox TValue="bool?" TriState="false" Value="ScheduleDays[6].IsSelected" ValueChanged="@(args => IsSelected(args, 6))" Name="Saturday">
+                                    </RadzenCheckBox>
+                                    <RadzenLabel Style="margin-left: 5px;" Text="Saturday" Component="Saturday">
+                                    </RadzenLabel>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <RadzenDatePicker TValue="DateTime?" Value="DateTime.Today.Add(TimeSpan.FromMinutes(ScheduleDays[6].StartTime))" ShowTime="true" TimeOnly="true" DateFormat="HH:mm" ValueChanged="@(args => TimeChanged(args, 6, true))" />
+                            </div>
+                            <div class="col-md-3">
+                                <RadzenDatePicker TValue="DateTime?" Value="DateTime.Today.Add(TimeSpan.FromMinutes(ScheduleDays[6].EndTime))" ShowTime="true" TimeOnly="true" DateFormat="HH:mm" ValueChanged="@(args => TimeChanged(args, 6, false))" />
+                            </div>
+                            <div class="col-md-1">
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem" class="row">
+                            <div class="col-md-2">
+                            </div>
+                            <div class="col-md-3">
+                                <div style=" display: flex; margin: auto; padding-top: 8px;">
+                                    <RadzenCheckBox TValue="bool?" TriState="false" Value="ScheduleDays[0].IsSelected" ValueChanged="@(args => IsSelected(args, 0))" Name="Sunday">
+                                    </RadzenCheckBox>
+                                    <RadzenLabel Style="margin-left: 5px;" Text="Sunday" Component="Sunday">
+                                    </RadzenLabel>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <RadzenDatePicker TValue="DateTime?" Value="DateTime.Today.Add(TimeSpan.FromMinutes(ScheduleDays[0].StartTime))" ShowTime="true" TimeOnly="true" DateFormat="HH:mm" ValueChanged="@(args => TimeChanged(args, 0, true))" />
+                            </div>
+                            <div class="col-md-3">
+                                <RadzenDatePicker TValue="DateTime?" Value="DateTime.Today.Add(TimeSpan.FromMinutes(ScheduleDays[0].EndTime))" ShowTime="true" TimeOnly="true" DateFormat="HH:mm" ValueChanged="@(args => TimeChanged(args, 0, false))" />
+                            </div>
+                            <div class="col-md-1">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col offset-sm-3">
+                                <RadzenButton ButtonType="Radzen.ButtonType.Submit" Icon="save" Text="Save" ButtonStyle="ButtonStyle.Primary">
+                                </RadzenButton>
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Click="@Button2Click">
+                                </RadzenButton>
+                            </div>
+                        </div>
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+

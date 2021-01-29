@@ -1,0 +1,94 @@
+@page "/schedules"
+
+@inherits SchedulesRadzenBase;
+@using RestClient.Net;
+@using Models;
+@using Radzen.Blazor
+@using Radzen;
+@using Newtonsoft.Json;
+@using System.Net.Http.Headers;
+@using FxaPortal.Services;
+
+<RadzenContentContainer Name="schedulePage">
+    <Row>
+        <Column>
+            <Card Margin="Margin.Is4.OnY">
+                <CardHeader>
+                    <CardTitle>Schedules</CardTitle>
+                </CardHeader>
+                <CardBody>
+                    <Row>
+                        <Column>
+                            <RadzenButton Icon="add_circle_outline" style="margin-bottom: 10px" Text="Add" Click="@BtnAddClick">
+                            </RadzenButton>
+                        </Column>
+                    </Row>
+                    <Row>
+                        <Column>
+                            <RadzenGrid @ref="schedulesGrid"
+                                        Count="@count"
+                                        Data="@schedules"
+                                        LoadData="@LoadData"
+                                        AllowSorting="true"
+                                        AllowFiltering="true"
+                                        AllowPaging="true"
+                                        PageSize="25"
+                                        TItem="Schedule"
+                                        ColumnWidth="200px"
+                                        RowRender="@RowRender"
+                                        EditMode="Radzen.DataGridEditMode.Single"
+                                        ExpandMode="DataGridExpandMode.Multiple">
+                                <Template Context="schedule">
+                                    <RadzenGrid AllowFiltering="false" AllowPaging="true" AllowSorting="true" Data="@schedule.ScheduleDays" TItem="ScheduleDay" Style="width: 50%">
+                                        <Columns>
+                                            <RadzenGridColumn TItem="ScheduleDay" Property="DayOfWeek" Title="Day" Sortable="false" Filterable="false">
+                                                <Template Context="day">
+                                                    @Enum.GetName(typeof(DayOfWeek), day.DayOfWeek)
+                                                </Template>
+                                            </RadzenGridColumn>
+                                            <RadzenGridColumn TItem="ScheduleDay" Property="StartTime" Title="Start Time" Sortable="false">
+                                                <Template Context="day">
+                                                    @string.Format("{0:hh\\:mm}", TimeSpan.FromMinutes(day.StartTime))
+                                                </Template>
+                                            </RadzenGridColumn>
+                                            <RadzenGridColumn TItem="ScheduleDay" Property="EndTime" Title="End Time" Sortable="false">
+                                                <Template Context="day">
+                                                    @string.Format("{0:hh\\:mm}", TimeSpan.FromMinutes(day.EndTime))
+                                                </Template>
+                                            </RadzenGridColumn>
+                                        </Columns>
+                                    </RadzenGrid>
+                                </Template>
+                                <Columns>
+                                    <RadzenGridColumn TItem="Schedule" Context="sampleBlazorModelsSampleOrder" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="40px">
+                                        <Template Context="schedule">
+                                            <RadzenButton Icon="edit" Size="Radzen.ButtonSize.Small" Click="@(args => EditRow(schedule))">
+                                            </RadzenButton>
+                                        </Template>
+                                    </RadzenGridColumn>
+                                    <RadzenGridColumn TItem="Schedule" Property="ScheduleId" Title="#" Sortable="false" Visible="false" Filterable="false">
+                                    </RadzenGridColumn>
+                                    <RadzenGridColumn TItem="Schedule" Property="Name" Title="Name">
+                                    </RadzenGridColumn>
+                                    <RadzenGridColumn TItem="Schedule" Property="Description" Title="Description">
+                                    </RadzenGridColumn>
+                                    <RadzenGridColumn TItem="Schedule" Property="Status" Title="Status">
+                                    </RadzenGridColumn>
+                                    <RadzenGridColumn TItem="Schedule" Property="RunType" Title="Run Type">
+                                    </RadzenGridColumn>
+                                    <RadzenGridColumn TItem="Schedule" Property="StartDate" Title="Start Date">
+                                    </RadzenGridColumn>
+                                    <RadzenGridColumn TItem="Schedule" Property="EndDate" Title="End Date">
+                                    </RadzenGridColumn>
+                                </Columns>
+                            </RadzenGrid>
+                        </Column>
+                    </Row>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+</RadzenContentContainer>
+@code {
+}
+

@@ -1,0 +1,176 @@
+@page "/blazorbatchschedules"
+@inherits BatchSchedulesBase;
+@using RestClient.Net;
+@using Models;
+@using FxaPortal.Services;
+@using Blazorise.Snackbar;
+
+@inject BatchApiService bapi;
+
+<Row>
+    <Column>
+        <Card Margin="Margin.Is4.OnY">
+            <CardHeader>
+                <CardTitle>
+                    @if (isSaving == true)
+                    {
+                        <div>Batches...Saving...</div>
+                    }
+                    else
+                    {
+                        <div>Batches</div>
+                    }
+                    @if (selectedBatch == null)
+                    {
+                        <Alert Color="Color.Danger" Visible="true">
+                            <AlertMessage>No Batch selected</AlertMessage>
+                            <AlertDescription>You need to select a Batch to add the schedule to.</AlertDescription>
+                        </Alert>
+                    }
+                </CardTitle>
+            </CardHeader>
+            <CardBody>
+
+                <DataGrid TItem="Batch"
+                          Data="batchList"
+                          @bind-SelectedRow="@selectedBatch"
+                          Filterable="true"
+                          PageSize="15"
+                          CurrentPage="1"
+                          Sortable="true"
+                          Striped="true"
+                          Bordered="true"
+                          Responsive="true"
+                          RowClicked="@OnRowClicked"
+                          SelectedRowStyling="@OnSelectedBatchRowStyling">
+                    <LoadingTemplate>
+                        <div class="box">
+                            <progress class="progress is-small is-primary" max="100" />
+                        </div>
+                    </LoadingTemplate>
+                    <DataGridColumns>
+                        <DataGridColumn TItem="Batch" Field="@nameof(Batch.BatchId)" Displayable="false" />
+                        <DataGridColumn TItem="Batch" Field="@nameof(Batch.BatchBusName)" Caption="Batch Bus Name" Editable="true" />
+                        <DataGridColumn TItem="Batch" Field="@nameof(Batch.BatchAbbr)" Caption="Batch Abbr" Editable="true">
+                        </DataGridColumn>
+                    </DataGridColumns>
+                </DataGrid>
+            </CardBody>
+        </Card>
+    </Column>
+    <Column>
+        <Card Margin="Margin.Is4.OnY">
+            <CardHeader>
+                <CardTitle>Schedules</CardTitle>
+            </CardHeader>
+            <CardBody>
+                <DataGrid TItem="Schedule"
+                          Data="scheduleList"
+                          Filterable="true"
+                          PageSize="15"
+                          CurrentPage="1"
+                          Sortable="true"
+                          Striped="true"
+                          Bordered="true"
+                          Responsive="true"
+                          Editable="true"
+                          RowClicked="@OnScheduleRowClicked"
+                          SelectedRowStyling="@OnSelectedScheduleRowStyling"
+                          DetailRowTrigger="@((item) => @UpdateRowTrigger(item.ScheduleDays.Count(), item.ScheduleId))">
+                    <LoadingTemplate>
+                        <div class="box">
+                            <progress class="progress is-small is-primary" max="100" />
+                        </div>
+                    </LoadingTemplate>
+                    <DataGridColumns>
+                        <DataGridColumn TItem="Schedule" Field="@nameof(Schedule.ScheduleId)" Displayable="false" />
+                        <DataGridColumn TItem="Schedule" Field="@nameof(Schedule.IsSelected)" Width="60" Filterable="false" Editable="true">
+                            <DisplayTemplate>
+                                <Check TValue="bool" Checked="context.IsSelected" Disabled="false" CheckedChanged="@OnScheduleCheckChanged" ReadOnly="false" />
+                            </DisplayTemplate>
+                        </DataGridColumn>
+                        <DataGridColumn TItem="Schedule" Field="@nameof(Schedule.ScheduleId)" Caption="#" Sortable="false" Displayable="true" Filterable="false">
+                            <DisplayTemplate>
+                                <Button Clicked="@(() => UpdateExpandedButton(context.ScheduleId))">
+                                    @if (context.ScheduleDays.Count > 0)
+                                    {
+                                        if (expandedItems.Contains(context.ScheduleId))
+                                        {
+                                            <Icon Name="IconName.AngleRight"></Icon>
+                                        }
+                                        else
+                                        {
+                                            <Icon Name="IconName.AngleDown"></Icon>
+                                        }
+                                    }
+                                </Button>
+                            </DisplayTemplate>
+                        </DataGridColumn>
+                        <DataGridColumn TItem="Schedule" Field="@nameof(Schedule.Name)" Caption="Name" />
+                        <DataGridColumn TItem="Schedule" Field="@nameof(Schedule.RunType)" Caption="Run Type" />
+                        <DataGridColumn TItem="Schedule" Field="@nameof(Schedule.Description)" Caption="Description" />
+                    </DataGridColumns>
+                    <DetailRowTemplate>
+                        @{
+                            var days = (context as Schedule).ScheduleDays;
+
+                            <DataGrid TItem="ScheduleDay"
+                                      Data="days"
+                                      Sortable="false"
+                                      ShowCaptions="false"
+                                      Striped="false"
+                                      Bordered="true"
+                                      RowStyling="OnDayRowStyling">
+                                <DataGridColumns>
+                                    <DataGridColumn TItem="ScheduleDay" Field="@nameof(ScheduleDay.DayOfWeek)" Caption="Day Of Week">
+                                        <DisplayTemplate Context="dayofweek">
+                                            @{
+                                                int dow = (dayofweek as ScheduleDay).DayOfWeek;
+                                                var dowName = Enum.GetName(typeof(DayOfWeek), dow);
+                                                @(dowName)
+                                            }
+                                        </DisplayTemplate>
+                                    </DataGridColumn>
+                                    <DataGridColumn TItem="ScheduleDay" Field="@nameof(ScheduleDay.StartTime)" Caption="Start Time">
+                                        <DisplayTemplate Context="starttime">
+                                            @{
+                                                @(string.Format("{0:hh\\:mm}", TimeSpan.FromMinutes((starttime as ScheduleDay).StartTime)))
+                                            }
+                                        </DisplayTemplate>
+                                    </DataGridColumn>
+                                    <DataGridColumn TItem="ScheduleDay" Field="@nameof(ScheduleDay.EndTime)" Caption="Start Time">
+                                        <DisplayTemplate Context="endtime">
+                                            @{
+                                                @(string.Format("{0:hh\\:mm}", TimeSpan.FromMinutes((endtime as ScheduleDay).EndTime)))
+                                            }
+                                        </DisplayTemplate>
+                                    </DataGridColumn>
+                                </DataGridColumns>
+                            </DataGrid>
+                        }
+                    </DetailRowTemplate>
+                </DataGrid>
+            </CardBody>
+        </Card>
+    </Column>
+</Row>
+<Snackbar @ref="snackbar" Color="SnackbarColor.Success">
+    <SnackbarBody>
+        Save was successful
+    </SnackbarBody>
+</Snackbar>
+
+<Snackbar @ref="snackbarFail" Color="SnackbarColor.Danger">
+    <SnackbarBody>
+        Save has failed
+    </SnackbarBody>
+</Snackbar>
+
+<Snackbar @ref="snackbarNoBatch" Color="SnackbarColor.Danger">
+    <SnackbarBody>
+        Please Choose a Batch
+    </SnackbarBody>
+</Snackbar>
+
+
+

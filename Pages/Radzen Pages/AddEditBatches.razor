@@ -1,0 +1,79 @@
+﻿@page "/add-batch"
+
+@inherits AddEditBatchesBase
+
+@using Radzen
+@using Radzen.Blazor
+@using Models
+<RadzenContent Container="mymain">
+    <ChildContent>
+        <div class="row">
+            <div class="col-md-12">
+                <RadzenTemplateForm Data="@Batch" Visible="@(Batch != null)" TItem="Batch" Submit="@Form0Submit">
+                    <ChildContent>
+                        <div style="margin-bottom: 1rem" class="row">
+                            <div class="col-md-3">
+                                <RadzenLabel Text="Business Name" Component="BusName" style="width: 100%">
+                                </RadzenLabel>
+                            </div>
+                            <div class="col-md-9">
+                                <RadzenTextBox style="width: 100%" @bind-Value="@(Batch.BatchBusName)" Name="BusName">
+                                </RadzenTextBox>
+                                <RadzenRequiredValidator Component="BusName" Text="Bus Name is required" Popup="true" Style="position: inherit" />
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem" class="row">
+                            <div class="col-md-3">
+                                <RadzenLabel Text="Batch Abbr" Component="BatchAbbr" style="width: 100%">
+                                </RadzenLabel>
+                            </div>
+                            <div class="col-md-9">
+                                <RadzenTextBox style="width: 100%" @bind-Value="@(Batch.BatchAbbr)" Name="BatchAbbr">
+                                </RadzenTextBox>
+                                <RadzenRequiredValidator Component="BatchAbbr" Text="Batch Abbr is required" Popup="true" Style="position: inherit" />
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem" class="row">
+                            <div class="col-md-3">
+                                <RadzenLabel Text="Allow Postal" Component="AllowPostal" style="width: 100%">
+                                </RadzenLabel>
+                            </div>
+                            <div class="col-md-1">
+                                <RadzenCheckBox style="width: 100%" @bind-Value="@(Batch.AllowPostal)" Name="AllowPostal">
+                                </RadzenCheckBox>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem" class="row">
+                            <div class="col-md-3">
+                                <RadzenLabel Text="Allow Email" Component="AllowEmail" style="width: 100%">
+                                </RadzenLabel>
+                            </div>
+                            <div class="col-md-1">
+                                <RadzenCheckBox style="width: 100%" @bind-Value="@(Batch.AllowEmail)" Name="AllowEmail">
+                                </RadzenCheckBox>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem" class="row">
+                            <div class="col-md-3">
+                                <RadzenLabel Text="Allow Sms" Component="AllowSms" style="width: 100%">
+                                </RadzenLabel>
+                            </div>
+                            <div class="col-md-1">
+                                <RadzenCheckBox style="width: 100%" @bind-Value="@(Batch.AllowSms)" Name="AllowSms">
+                                </RadzenCheckBox>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col offset-sm-3">
+                                <RadzenButton ButtonType="Radzen.ButtonType.Submit" Icon="save" Text="Save" ButtonStyle="ButtonStyle.Primary">
+                                </RadzenButton>
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Click="@Button2Click">
+                                </RadzenButton>
+                            </div>
+                        </div>
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

@@ -1,0 +1,108 @@
+@page "/blazorbatches"
+
+@inherits BatchesBase;
+@using RestClient.Net;
+@using Models;
+@using FxaPortal.Services;
+@using Blazorise;
+@using Blazorise.Snackbar; 
+
+<Row>
+    <Column>
+        <Card Margin="Margin.Is4.OnY">
+            <CardHeader>
+                <CardTitle>Batches</CardTitle>
+            </CardHeader>
+            <CardBody>
+                <DataGrid TItem="Batch"
+                          Data="batchList"
+                          @bind-SelectedRow="@selectedBatch"
+                          TotalItems="@totalBatches"
+                          Filterable="true"
+                          ShowPager="true"
+                          PageSize="15"
+                          CurrentPage="1"
+                          Sortable="true"
+                          Striped="true"
+                          Bordered="true"
+                          Editable="true"
+                          EditMode="DataGridEditMode.Popup"
+                          RowStyling="@OnRowStyling"
+                          SelectedRowStyling="@OnSelectedRowStyling"
+                          UseInternalEditing="false"
+                          RowInserting="@OnRowInserting"
+                          RowUpdating="@OnRowUpdating"
+                          RowClicked="@OnRowClicked"
+                          Responsive="true"
+                          >
+                    <PopupTitleTemplate>
+                        Batch Edit
+                    </PopupTitleTemplate>
+                    <LoadingTemplate>
+                        <div class="box">
+                            <progress class="progress is-small is-primary" max="100" />
+                        </div>
+                    </LoadingTemplate>
+                    <DataGridColumns>
+
+                        <DataGridCommandColumn TItem="Batch" Width="80px" DeleteCommandAllowed="false">
+                            <NewCommandTemplate>
+                                <Button Color="Color.Success" Clicked="@context.Clicked">
+                                    <Icon Name="IconName.PlusSquare"></Icon>
+                                </Button>
+                            </NewCommandTemplate>
+                            <EditCommandTemplate>
+                                <Button Color="Color.Primary" Clicked="@context.Clicked">
+                                    <Icon Name="IconName.Edit"></Icon>
+                                </Button>
+                            </EditCommandTemplate>
+                            <SaveCommandTemplate>
+                                <Button Color="Color.Primary" Clicked="@context.Clicked">Save</Button>
+                            </SaveCommandTemplate>
+                            <CancelCommandTemplate>
+                                <Button Color="Color.Secondary" Clicked="@context.Clicked">Cancel</Button>
+                            </CancelCommandTemplate>
+                            <ClearFilterCommandTemplate>
+                                <Button Color="Color.Warning" Clicked="@context.Clicked">
+                                    <Icon Name="IconName.Filter"></Icon>
+                                </Button>
+                            </ClearFilterCommandTemplate>
+                        </DataGridCommandColumn>
+                        <DataGridColumn TItem="Batch" Field="@nameof(Batch.BatchId)" Displayable="false" @ref="@currentId"/>
+                        <DataGridColumn TItem="Batch" Field="@nameof(Batch.BatchBusName)" Caption="Batch Bus Name" Editable="true" />
+                        <DataGridColumn TItem="Batch" Field="@nameof(Batch.BatchAbbr)" Caption="Batch Abbr" Editable="true">
+                            <EditTemplate>
+                                <Validation Validator="@OnValidateAbbr">
+                                    <TextEdit Casing="CharacterCasing.Upper" Text="@((string)(((CellEditContext)context).CellValue))" TextChanged="@(v=>((CellEditContext)context).CellValue = v)">
+                                        <Feedback>
+                                            <ValidationError>This Abbreviation is already in use</ValidationError>
+                                        </Feedback>
+                                    </TextEdit>
+                                </Validation>
+                            </EditTemplate>
+                        </DataGridColumn>
+                    </DataGridColumns>
+
+                </DataGrid>
+            </CardBody>
+        </Card>
+    </Column>
+</Row>
+
+<Snackbar @ref="snackbar" Color="SnackbarColor.Success">
+    <SnackbarBody>
+        Save was succesful
+    </SnackbarBody>
+</Snackbar>
+
+<Snackbar @ref="snackbarFail" Color="SnackbarColor.Danger">
+    <SnackbarBody>
+        Save has failed
+    </SnackbarBody>
+</Snackbar>
+
+<Snackbar @ref="snackbarInvalidAbbr" Color="SnackbarColor.Danger">
+    <SnackbarBody>
+        The Abbreviation you selected is already in use
+    </SnackbarBody>
+</Snackbar>

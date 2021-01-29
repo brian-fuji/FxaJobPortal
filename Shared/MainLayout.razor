@@ -1,0 +1,170 @@
+﻿@inherits LayoutComponentBase
+
+@using Radzen
+@using Radzen.Blazor
+<RadzenDialog />
+<RadzenNotification />
+
+<Layout Sider="true">
+    <LayoutSider>
+        <LayoutSiderContent>
+            <Bar Breakpoint="Breakpoint.Desktop"
+                 NavigationBreakpoint="Breakpoint.Tablet"
+                 ThemeContrast="ThemeContrast.Dark"
+                 Mode="BarMode.VerticalInline"
+                 CollapseMode="BarCollapseMode.Small"
+                 @bind-Visible="siderVisible">
+                <BarBrand>
+                    <BarItem>
+                        <BarLink To="/">
+                            FXA Portal
+                        </BarLink>
+                    </BarItem>
+                </BarBrand>
+                <BarMenu>
+                    <BarStart>
+                        <BarItem>
+                            <BarLink To="">
+                                <BarIcon IconName="IconName.Dashboard" />
+                                Dashboard
+                            </BarLink>
+                        </BarItem>
+                        <BarItem>
+                            <BarDropdown>
+                                <BarDropdownToggle>
+                                    <BarIcon IconName="IconName.Wrench" />
+                                    Setup
+                                </BarDropdownToggle>
+                                <BarDropdownMenu>
+                                    <BarDropdownItem To="batches">
+                                        Batches
+                                    </BarDropdownItem>
+                                    <BarDropdownItem To="schedules">
+                                        Schedules
+                                    </BarDropdownItem>
+                                    <BarDropdownItem To="batchschedule">
+                                        Batch Schedules
+                                    </BarDropdownItem>
+                                </BarDropdownMenu>
+                            </BarDropdown>
+                        </BarItem>
+                        <BarItem>
+                            <BarDropdown>
+                                <BarDropdownToggle>
+                                    <BarIcon IconName="IconName.Running" />
+                                    Jobs
+                                </BarDropdownToggle>
+                                <BarDropdownMenu>
+                                    <BarDropdownItem To="batchruns">
+                                        Batch Runs
+                                    </BarDropdownItem>
+                                    <BarDropdownItem To="transactions">
+                                        Transactions
+                                    </BarDropdownItem>
+                                    <BarDropdownItem To="smstransaction">
+                                        Sms Transactions
+                                    </BarDropdownItem>
+                                    <BarDropdownItem To="emailtransaction">
+                                        Email Transactions
+                                    </BarDropdownItem>
+                                </BarDropdownMenu>
+                            </BarDropdown>
+                        </BarItem>
+                        <BarItem>
+                            <BarDropdown>
+                                <BarDropdownToggle>
+                                    <BarIcon IconName="IconName.Bars" />
+                                    Reporting
+                                </BarDropdownToggle>
+                                <BarDropdownMenu>
+                                    <BarDropdownItem To="batchjobreports">
+                                        Batch Job Reports
+                                    </BarDropdownItem>
+                                    <BarDropdownItem To="reportemails">
+                                        Email Job Reports
+                                    </BarDropdownItem>
+                                    <BarDropdownItem To="reportsms">
+                                        Sms Job Reports
+                                    </BarDropdownItem>
+                                </BarDropdownMenu>
+                            </BarDropdown>
+                        </BarItem>
+                    </BarStart>
+                    <BarEnd>
+                        <BarLabel>Fuji Xerox</BarLabel>
+                    </BarEnd>
+                </BarMenu>
+            </Bar>
+        </LayoutSiderContent>
+    </LayoutSider>
+    <Layout>
+        <LayoutHeader Fixed="true">
+            <Bar Style="height: 52px;"
+                 Breakpoint="Breakpoint.Desktop"
+                 ThemeContrast="ThemeContrast.Dark"
+                 Mode="BarMode.Horizontal"
+                 Background="Background.Primary">
+
+                <BarToggler Clicked="@ToggleSidebar" Style="display:block" />
+
+                <BarMenu>
+                    <BarStart>
+                        <BarLabel>&nbsp;</BarLabel>
+                    </BarStart>
+                    <BarEnd>
+                        <BarItem>
+                            <BarDropdown>
+                                <BarDropdownToggle><Icon Name="IconName.User" /></BarDropdownToggle>
+                                <BarDropdownMenu Style="padding: 15px; min-width:50px;" RightAligned="true">
+                                    <BarDropdownItem Clicked="@OnClicked">
+                                        Profile
+                                    </BarDropdownItem>
+                                    <BarDropdownItem To="LogOff">
+                                        Log Off
+                                    </BarDropdownItem>
+                                </BarDropdownMenu>
+                            </BarDropdown>
+                        </BarItem>
+                        <BarItem>
+                            <BarLabel>&nbsp;</BarLabel>
+                        </BarItem>
+                    </BarEnd>
+                </BarMenu>
+            </Bar>
+        </LayoutHeader>
+        <LayoutContent Padding="Padding.Is4.OnX">
+            <RadzenContentContainer Name="mymain">
+                @Body
+            </RadzenContentContainer>
+        </LayoutContent>
+    </Layout>
+</Layout>
+
+@code{
+
+    private bool siderVisible = true;
+    private bool uiElementsVisible = true;
+
+    RenderFragment customIcon =@<img src="/brand-logo.png" style="width:32px; height: 32px" />;
+
+void ToggleSidebar()
+{
+siderVisible = !siderVisible;
+StateHasChanged();
+}
+
+protected void OnClicked()
+{
+if (Theme?.ColorOptions != null)
+{
+Theme.ColorOptions.Primary = "#d21865";
+Theme.ColorOptions.Secondary = "#d11111";
+Theme.ColorOptions.Info = "#fe69ad";
+
+}
+Theme.Enabled = true;
+Theme.ThemeHasChanged();
+}
+
+[CascadingParameter] protected Theme Theme { get; set; }
+}

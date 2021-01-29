@@ -1,0 +1,128 @@
+@page "/blazorbatchruns"
+
+@inherits BatchRunsBase;
+@using RestClient.Net;
+@using Models;
+@using FxaPortal.Services;
+@using Blazorise.Snackbar;
+
+<Row Style="font-size:.8rem">
+    <Column>
+        <Card Margin="Margin.Is4.OnY">
+            <CardHeader>
+                <CardTitle Size="8">
+                    Batch Runs
+                </CardTitle>
+            </CardHeader>
+            <CardBody>
+                <Row Margin="Margin.Is1.FromBottom">
+                    @if (showFileError)
+                    {
+                        <Column ColumnSize="ColumnSize.Is6"><Badge Color="Color.Danger">Please select a file</Badge></Column>
+                    }
+                    else
+                    {
+                        <Column ColumnSize="ColumnSize.Is6" />
+                    }
+                    <Column ColumnSize="ColumnSize.Is4">
+                        <FileEdit  Changed="@OnFileChanged" Multiple="true" @ref="fileUploadControl"/>
+                    </Column>
+                    <Column ColumnSize="ColumnSize.Is1">
+                        <Button Color="Color.Primary" Clicked="@OnCreateClicked" Disabled="jobButtonDisabled" Style="float:left">Run Job</Button>
+                    </Column>
+                    <Column ColumnSize="ColumnSize.Is1">
+                        <Button Color="Color.Success" Clicked="@OnRefreshData" Loading="isLoading" Style="float:right">Refresh</Button>
+                    </Column>
+                </Row>
+                <Row></Row>
+                <Row>
+                    <Column ColumnSize="ColumnSize.Is12">
+                        <DataGrid TItem="BatchRun"
+                                  Data="batchRunList"
+                                  ReadData="@OnReadData"
+                                  @bind-SelectedRow="@selectedBatchRun"
+                                  TotalItems="totalBatchRuns"
+                                  Filterable="true"
+                                  PageSize="30"
+                                  Sortable="true"
+                                  Striped="true"
+                                  Bordered="true"
+                                  Responsive="true"
+                                  RowClicked="@OnRowClicked"
+                                  SelectedRowStyling="@OnSelectedRowStyling"
+                                  ShowPager="true"
+                                  PageChanged="@OnPageChanged"
+                                  DetailRowTrigger="@((item) => @UpdateRowTrigger(item.BatchRunStatus.Count(), item.RunNumber))">
+                            <LoadingTemplate>
+                                <div class="box">
+                                    <progress class="progress is-small is-primary" max="100" />
+                                </div>
+                            </LoadingTemplate>
+                            <DataGridColumns>
+                                <DataGridColumn TItem="BatchRun" Field="@nameof(BatchRun.RunNumber)" Caption="#" Sortable="false" Displayable="true" Filterable="false">
+                                    <DisplayTemplate>
+                                        <Button Clicked="@(() => UpdateExpandedButton(context.RunNumber))">
+                                            @if (context.BatchRunStatus.Count > 0)
+                                            {
+                                                if (expandedItems.Contains(context.RunNumber))
+                                                {
+                                                    <Icon Name="IconName.AngleRight"></Icon>
+                                                }
+                                                else
+                                                {
+                                                    <Icon Name="IconName.AngleDown"></Icon>
+                                                }
+                                            }
+                                        </Button>
+                                    </DisplayTemplate>
+                                </DataGridColumn>
+
+                                <DataGridColumn TItem="BatchRun" Field="@nameof(BatchRun.BatchBusName)" Caption="Batch Bus Name" />
+                                <DataGridColumn TItem="BatchRun" Field="@nameof(BatchRun.BatchAbbr)" Caption="Batch Abbr" />
+                                <DataGridColumn TItem="BatchRun" Field="@nameof(BatchRun.BatchNumber)" Caption="Batch Nbr" />
+                                <DataGridColumn TItem="BatchRun" Field="@nameof(BatchRun.HashTotal)" Caption="Hash Total" />
+                                <DataGridColumn TItem="BatchRun" Field="@nameof(BatchRun.DocumentCount)" Caption="Document Count" />
+                                <DataGridColumn TItem="BatchRun" Field="@nameof(BatchRun.DistributedData)" Caption="Distributed Date" />
+                                <DataGridColumn TItem="BatchRun" Field="@nameof(BatchRun.Reprocessed)" Caption="Reprocessed" />
+                                <DataGridColumn TItem="BatchRun" Field="@nameof(BatchRun.Status)" Caption="Status" />
+                                <DataGridColumn TItem="BatchRun" Field="@nameof(BatchRun.Filepath)" Caption="File Path" />
+                                <DataGridColumn TItem="BatchRun" Field="@nameof(BatchRun.Filename)" Caption="File Name" />
+                                <DataGridColumn TItem="BatchRun" Field="@nameof(BatchRun.RunDate)" Caption="Run Date" CellStyle="@((item) => SetStyle(item,""))" />
+                                <DataGridColumn TItem="BatchRun" Field="@nameof(BatchRun.StartTime)" Caption="Start Time" />
+                                <DataGridColumn TItem="BatchRun" Field="@nameof(BatchRun.EndTime)" Caption="End Time" />
+                            </DataGridColumns>
+                            <DetailRowTemplate>
+                                @{
+                                    var statuses = (context as BatchRun).BatchRunStatus;
+                                    <Row>
+                                        <Column ColumnSize="ColumnSize.Is6">
+                                            <DataGrid TItem="BatchRunStatus"
+                                                      Data="statuses"
+                                                      Sortable="false"
+                                                      ShowCaptions="false"
+                                                      Striped="false"
+                                                      Bordered="true"
+                                                      PageSize="50">
+                                                <DataGridColumns>
+                                                    <DataGridColumn TItem="BatchRunStatus" Field="@nameof(BatchRunStatus.Status)" Caption="Status" />
+
+                                                    <DataGridColumn TItem="BatchRunStatus" Field="@nameof(BatchRunStatus.StatusDate)" Caption="Date" />
+
+                                                </DataGridColumns>
+                                            </DataGrid>
+                                        </Column>
+                                    </Row>
+                                }
+                            </DetailRowTemplate>
+                        </DataGrid>
+                    </Column>
+                </Row>
+            </CardBody>
+        </Card>
+    </Column>
+</Row>
+<Snackbar @ref="snackBarUploadComplete" Color="SnackbarColor.Success">
+    File has been uploaded
+</Snackbar>
+
+

@@ -1,0 +1,260 @@
+@page "/blazorschedules"
+
+@inherits SchedulesBase;
+@using RestClient.Net;
+@using Models;
+@using Blazorise.DataGrid
+@using Blazorise.Snackbar
+@using Newtonsoft.Json;
+@using System.Net.Http.Headers;
+@using FxaPortal.Services;
+
+<Row>
+    <Column>
+        <Card Margin="Margin.Is4.OnY">
+            <CardHeader>
+                <CardTitle>Schedules</CardTitle>
+            </CardHeader>
+            <CardBody>
+                <DataGrid TItem="Schedule"
+                          Data="@scheduleList"
+                          @bind-SelectedRow="@selectedSchedule"
+                          TotalItems="@totalSchedules"
+                          Filterable="true"
+                          ShowPager="true"
+                          PageSize="15"
+                          CurrentPage="1"
+                          Sortable="true"
+                          Striped="true"
+                          Bordered="true"
+                          Editable="true"
+                          EditMode=DataGridEditMode.Popup
+                          RowStyling="@OnRowStyling"
+                          SelectedRowStyling="@OnSelectedRowStyling"
+                          UseInternalEditing="false"
+                          RowInserting="@OnRowInserting"
+                          RowUpdating="@OnRowUpdating"
+                          RowClicked="@OnRowClicked"
+                          Responsive="true"
+                          PopupSize="ModalSize.ExtraLarge"
+                          DetailRowTrigger="@((item) => @UpdateRowTrigger(item.ScheduleDays.Count(), item.ScheduleId))">
+                    <LoadingTemplate>
+                        <div class="box">
+                            <progress class="progress is-small is-primary" max="100" />
+                        </div>
+                    </LoadingTemplate>
+                    <DataGridColumns>
+                        <DataGridCommandColumn TItem="Schedule" Width="80px" DeleteCommandAllowed="false">
+                            <NewCommandTemplate>
+                                <Button Color="Color.Success" Clicked="@context.Clicked">
+                                    <Icon Name="IconName.PlusSquare"></Icon>
+                                </Button>
+                            </NewCommandTemplate>
+                            <EditCommandTemplate>
+                                <Button Color="Color.Primary" Clicked="@context.Clicked">
+                                    <Icon Name="IconName.Edit"></Icon>
+                                </Button>
+                            </EditCommandTemplate>
+                            <SaveCommandTemplate>
+                                <Button Color="Color.Primary" Clicked="@context.Clicked">Save</Button>
+                            </SaveCommandTemplate>
+                            <CancelCommandTemplate>
+                                <Button Color="Color.Secondary" Clicked="@context.Clicked">Cancel</Button>
+                            </CancelCommandTemplate>
+                            <ClearFilterCommandTemplate>
+                                <Button Color="Color.Warning" Clicked="@context.Clicked">
+                                    <Icon Name="IconName.Filter"></Icon>
+                                </Button>
+                            </ClearFilterCommandTemplate>
+                        </DataGridCommandColumn>
+                        <DataGridColumn TItem="Schedule" Field="@nameof(Schedule.ScheduleId)" Caption="#" Sortable="false" Displayable="true" Filterable="false">
+                            <DisplayTemplate>
+                                <Button Clicked="@(() => UpdateExpandedButton(context.ScheduleId))">
+                                    @if (context.ScheduleDays.Count > 0)
+                                    {
+                                        if (expandedItems.Contains(context.ScheduleId))
+                                        {
+                                            <Icon Name="IconName.AngleRight"></Icon>
+                                        }
+                                        else
+                                        {
+                                            <Icon Name="IconName.AngleDown"></Icon>
+                                        }
+                                    }
+                                </Button>
+                            </DisplayTemplate>
+                        </DataGridColumn>
+                        <DataGridColumn TItem="Schedule" Field="@nameof(Schedule.Name)" Caption="Name" Editable="true">
+                        </DataGridColumn>
+
+                        <DataGridColumn TItem="Schedule" Field="@nameof(Schedule.Description)" Caption="Description" Editable="true">
+                        </DataGridColumn>
+                        <DataGridColumn TItem="Schedule" Field="@nameof(Schedule.Status)" Caption="Status" Editable="false">
+                        </DataGridColumn>
+                        <DataGridColumn TItem="Schedule" Field="@nameof(Schedule.RunType)" Caption="Run Type" Editable="true">
+                            <EditTemplate>
+                                <Select TValue="string" SelectedValue="@(runType)" SelectedValueChanged="@((v) => ((CellEditContext)context).CellValue = v)">
+                                    <SelectItem TValue="string" Value=@("Print")>Print</SelectItem>
+                                    <SelectItem TValue="string" Value="@("Email")">Email</SelectItem>
+                                    <SelectItem TValue="string" Value="@("Sms")">Sms</SelectItem>
+                                </Select>
+                            </EditTemplate>
+                        </DataGridColumn>
+                        <DataGridDateColumn TItem="Schedule" Field="@nameof(Schedule.StartDate)" Caption="Start Date" Editable="true">
+                            <EditTemplate>
+                                <DateEdit TValue="DateTime?" Date="@(scheduleStartDate)" DateChanged="@(v => OnStartDateChanged(v))"></DateEdit>
+                            </EditTemplate>
+                        </DataGridDateColumn>
+                        <DataGridDateColumn TItem="Schedule" Field="@nameof(Schedule.EndDate)" Caption="End Date" Editable="true">
+                            <EditTemplate>
+                                <DateEdit TValue="DateTime?" Date="@(scheduleEndDate)" DateChanged="@(v => OnEndDateChanged(v))"></DateEdit>
+                            </EditTemplate>
+                        </DataGridDateColumn>
+
+                        <DataGridColumn TItem="Schedule" Field="@nameof(Schedule.ScheduleDaysString)" Caption="Days" Editable="true" Displayable="false">
+                            <EditTemplate>
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle>Days</CardTitle>
+                                    </CardHeader>
+                                    <CardBody>
+                                        <Row>
+                                            <Column>
+                                                <Check TValue="bool" Checked="@(CheckForDay(1))" CheckedChanged="@MonChanged">Monday</Check>
+                                            </Column>
+                                            <Column>
+                                                <TimeEdit TValue="TimeSpan?" Size="Size.ExtraSmall" Time="@(GetStartEndTime(1, true))" TimeChanged="@MonStartChanged">Start Time</TimeEdit>
+                                            </Column>
+                                            <Column>
+                                                <TimeEdit TValue="TimeSpan?" Size="Size.ExtraSmall" Time="@(GetStartEndTime(1, false))" TimeChanged="@MonEndChanged">End Time</TimeEdit>
+                                            </Column>
+                                        </Row>
+                                        <Row>
+                                            <Column>
+                                                <Check TValue="bool" Checked="@(CheckForDay(2))" CheckedChanged="@TueChanged">Tuesday</Check>
+                                            </Column>
+                                            <Column>
+                                                <TimeEdit TValue="TimeSpan?" Size="Size.ExtraSmall" Time="@(GetStartEndTime(2, true))" TimeChanged="@TueStartChanged">Start Time</TimeEdit>
+                                            </Column>
+                                            <Column>
+                                                <TimeEdit TValue="TimeSpan?" Size="Size.ExtraSmall" Time="@(GetStartEndTime(2, false))" TimeChanged="@TueEndChanged">End Time</TimeEdit>
+                                            </Column>
+                                        </Row>
+                                        <Row>
+                                            <Column>
+                                                <Check TValue="bool" Checked="@(CheckForDay(3))" CheckedChanged="@WedChanged">Wednesday</Check>
+                                            </Column>
+                                            <Column>
+                                                <TimeEdit TValue="TimeSpan?" Size="Size.ExtraSmall" Time="@(GetStartEndTime(3, true))" TimeChanged="@WedStartChanged">Start Time</TimeEdit>
+                                            </Column>
+                                            <Column>
+                                                <TimeEdit TValue="TimeSpan?" Size="Size.ExtraSmall" Time="@(GetStartEndTime(3, false))" TimeChanged="@WedEndChanged">End Time</TimeEdit>
+                                            </Column>
+                                        </Row>
+                                        <Row>
+                                            <Column>
+                                                <Check TValue="bool" Checked="@(CheckForDay(4))" CheckedChanged="@ThuChanged">Thursday</Check>
+                                            </Column>
+                                            <Column>
+                                                <TimeEdit TValue="TimeSpan?" Size="Size.ExtraSmall" Time="@(GetStartEndTime(4, true))" TimeChanged="@ThuStartChanged">Start Time</TimeEdit>
+                                            </Column>
+                                            <Column>
+                                                <TimeEdit TValue="TimeSpan?" Size="Size.ExtraSmall" Time="@(GetStartEndTime(4, false))" TimeChanged="@ThuEndChanged">End Time</TimeEdit>
+                                            </Column>
+                                        </Row>
+                                        <Row>
+                                            <Column>
+                                                <Check TValue="bool" Checked="@(CheckForDay(5))" CheckedChanged="@FriChanged">Friday</Check>
+                                            </Column>
+                                            <Column>
+                                                <TimeEdit TValue="TimeSpan?" Size="Size.ExtraSmall" Time="@(GetStartEndTime(5, true))" TimeChanged="@FriStartChanged">Start Time</TimeEdit>
+                                            </Column>
+                                            <Column>
+                                                <TimeEdit TValue="TimeSpan?" Size="Size.ExtraSmall" Time="@(GetStartEndTime(5, false))" TimeChanged="@FriEndChanged">End Time</TimeEdit>
+                                            </Column>
+                                        </Row>
+                                        <Row>
+                                            <Column>
+                                                <Check TValue="bool" Checked="@(CheckForDay(6))" CheckedChanged="@SatChanged">Saturday</Check>
+                                            </Column>
+                                            <Column>
+                                                <TimeEdit TValue="TimeSpan?" Size="Size.ExtraSmall" Time="@(GetStartEndTime(6, true))" TimeChanged="@SatStartChanged">Start Time</TimeEdit>
+                                            </Column>
+                                            <Column>
+                                                <TimeEdit TValue="TimeSpan?" Size="Size.ExtraSmall" Time="@(GetStartEndTime(6, false))" TimeChanged="@SatEndChanged">End Time</TimeEdit>
+                                            </Column>
+                                        </Row>
+                                        <Row>
+                                            <Column>
+                                                <Check TValue="bool" Checked="@(CheckForDay(0))" CheckedChanged="@SunChanged">Sunday</Check>
+                                            </Column>
+                                            <Column>
+                                                <TimeEdit TValue="TimeSpan?" Size="Size.ExtraSmall" Time="@(GetStartEndTime(0, true))" TimeChanged="@SunStartChanged">Start Time</TimeEdit>
+                                            </Column>
+                                            <Column>
+                                                <TimeEdit TValue="TimeSpan?" Size="Size.ExtraSmall" Time="@(GetStartEndTime(0, false))" TimeChanged="@SunEndChanged">End Time</TimeEdit>
+                                            </Column>
+                                        </Row>
+                                    </CardBody>
+                                </Card>
+                            </EditTemplate>
+                        </DataGridColumn>
+
+                    </DataGridColumns>
+                    <DetailRowTemplate>
+                        @{
+                            var days = (context as Schedule).ScheduleDays;
+
+                            <DataGrid TItem="ScheduleDay"
+                                      Data="days"
+                                      Sortable="false"
+                                      ShowCaptions="false"
+                                      Striped="false"
+                                      Bordered="true"
+                                      RowStyling="OnDayRowStyling"
+                                      PageSize="30">
+                                <DataGridColumns>
+                                    <DataGridColumn TItem="ScheduleDay" Field="@nameof(ScheduleDay.DayOfWeek)" Caption="Day Of Week">
+                                        <DisplayTemplate Context="dayofweek">
+                                            @{
+                                                int dow = (dayofweek as ScheduleDay).DayOfWeek;
+                                                var dowName = Enum.GetName(typeof(DayOfWeek), dow);
+                                                @(dowName)
+                                            }
+                                        </DisplayTemplate>
+                                    </DataGridColumn>
+                                    <DataGridColumn TItem="ScheduleDay" Field="@nameof(ScheduleDay.StartTime)" Caption="Start Time">
+                                        <DisplayTemplate Context="starttime">
+                                            @{
+                                                @(string.Format("{0:hh\\:mm}", TimeSpan.FromMinutes((starttime as ScheduleDay).StartTime)))
+                                            }
+                                        </DisplayTemplate>
+                                    </DataGridColumn>
+                                    <DataGridColumn TItem="ScheduleDay" Field="@nameof(ScheduleDay.EndTime)" Caption="Start Time">
+                                        <DisplayTemplate Context="endtime">
+                                            @{
+                                                @(string.Format("{0:hh\\:mm}", TimeSpan.FromMinutes((endtime as ScheduleDay).EndTime)))
+                                            }
+                                        </DisplayTemplate>
+                                    </DataGridColumn>
+                                </DataGridColumns>
+                            </DataGrid>
+                        }
+                    </DetailRowTemplate>
+                </DataGrid>
+            </CardBody>
+        </Card>
+    </Column>
+</Row>
+<Snackbar @ref="snackbar" Color="SnackbarColor.Success">
+    <SnackbarBody>
+        Save was succesful
+    </SnackbarBody>
+</Snackbar>
+
+<Snackbar @ref="snackbarFail" Color="SnackbarColor.Danger">
+    <SnackbarBody>
+        Save has failed
+    </SnackbarBody>
+</Snackbar>
+                                

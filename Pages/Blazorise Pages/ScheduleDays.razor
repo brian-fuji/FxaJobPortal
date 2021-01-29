@@ -1,0 +1,60 @@
+@page "/blazorscheduledays"
+
+@inherits ScheduleDaysBase;
+@using RestClient.Net;
+@using Models;
+@using FxaPortal.Services;
+
+<h1>Schedule Days</h1>
+
+
+@if (scheduleDayList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+<DataGrid TItem="ScheduleDay"
+          Data="@scheduleDayList"
+          @bind-SelectedRow="@selectedscheduleDay"
+          TotalItems="@totalScheduleDays"
+          Filterable="true"
+          Sortable="true"
+          ShowPager="true"
+          PageSize="30"
+          CurrentPage="1"
+          Striped="true">
+        <DataGridColumn TItem="ScheduleDay" Field="@nameof(ScheduleDay.ScheduleId)" Caption="Schedule Id" Sortable="false" />
+        <DataGridColumn TItem="ScheduleDay" Field="@nameof(ScheduleDay.ScheduleId)" Caption="Schedule Name" Sortable="false" Filterable="false">
+            <DisplayTemplate Context="schedule">
+                @{
+                    @((schedule as ScheduleDay).Schedule.Name)
+                }
+            </DisplayTemplate>
+        </DataGridColumn>><DataGridColumn TItem="ScheduleDay" Field="@nameof(ScheduleDay.DayOfWeek)" Caption="Day Of Week" Editable="true">
+            <DisplayTemplate Context="dayofweek">
+                @{
+                    int dow = (dayofweek as ScheduleDay).DayOfWeek;
+                    var dowName = Enum.GetName(typeof(DayOfWeek), dow);
+                    @(dowName)
+                }
+            </DisplayTemplate>
+        </DataGridColumn>
+        <DataGridColumn TItem="ScheduleDay" Field="@nameof(ScheduleDay.StartTime)" Caption="Start Time">
+            <DisplayTemplate Context="starttime">
+                @{
+                    @(string.Format("{0:hh\\:mm}", TimeSpan.FromMinutes((starttime as ScheduleDay).StartTime)))
+                }
+            </DisplayTemplate>
+        </DataGridColumn>
+        <DataGridColumn TItem="ScheduleDay" Field="@nameof(ScheduleDay.EndTime)" Caption="Start Time">
+            <DisplayTemplate Context="endtime">
+                @{
+                    @(string.Format("{0:hh\\:mm}", TimeSpan.FromMinutes((endtime as ScheduleDay).EndTime)))
+                }
+            </DisplayTemplate>
+        </DataGridColumn>
+</DataGrid>
+
+}
+

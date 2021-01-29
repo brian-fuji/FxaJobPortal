@@ -1,0 +1,70 @@
+@page "/emailtransaction"
+
+@inherits EmailTransactionsRadzenBase;
+@using RestClient.Net;
+@using Models;
+@using Blazorise.DataGrid
+@using Blazorise.Snackbar
+@using Radzen.Blazor
+@using Radzen;
+@using Newtonsoft.Json;
+@using System.Net.Http.Headers;
+@using FxaPortal.Services;
+
+<Row>
+    <Column>
+        <Card Margin="Margin.Is4.OnY">
+            <CardHeader>
+                <CardTitle>Email Transactions</CardTitle>
+            </CardHeader>
+            <CardBody>
+                <Row Margin="Margin.Is1.FromBottom">
+                    <Column ColumnSize="ColumnSize.Is12">
+                        <RadzenButton Click="@RefreshData" Text="Refresh" Icon="@refreshIcon" Style="margin-bottom: 5px; width:120px; float: right"></RadzenButton>
+                    </Column>
+                </Row>
+                <Row>
+                    <Column>
+                        <RadzenGrid Count="@count"
+                                    Data="@emailList"
+                                    LoadData="@LoadData"
+                                    AllowSorting="true"
+                                    AllowFiltering="true"
+                                    AllowPaging="true"
+                                    PageSize="15"
+                                    TItem="EmailTransaction"
+                                    ColumnWidth="100px"
+                                    RowRender="@RowRender"
+                                    EditMode="Radzen.DataGridEditMode.Single"
+                                    ExpandMode="DataGridExpandMode.Multiple">
+                            <Template Context="emailTransaction">
+                                <RadzenGrid AllowFiltering="false" AllowPaging="true" AllowSorting="true" Data="@emailTransaction.EmailStatus" TItem="EmailStatus" Style="width: 50%">
+                                    <Columns>
+                                        <RadzenGridColumn TItem="EmailStatus" Property="Event" Title="Event" Sortable="false" Filterable="false">
+                                        </RadzenGridColumn>
+                                        <RadzenGridColumn TItem="EmailStatus" Property="TransactionDate" Title="Date" Sortable="false" Filterable="false">
+                                        </RadzenGridColumn>
+                                    </Columns>
+                                </RadzenGrid>
+                            </Template>
+                            <Columns>
+                                <RadzenGridColumn TItem="EmailTransaction" Property="EmailId" Title="#" Visible="false" />
+                                <RadzenGridColumn TItem="EmailTransaction" Property="DocumentId" Title="Doc Id" Width="40px" />
+                                <RadzenGridColumn TItem="EmailTransaction" Property="UniqueId" Title="Id" />
+                                <RadzenGridColumn TItem="EmailTransaction" Property="EmailAddress" Title="Email Address" />
+                                <RadzenGridColumn TItem="EmailTransaction" Property="TransactionDate" Title="Trans. Date" />
+                                <RadzenGridColumn TItem="EmailTransaction" Property="Status" Title="Status" />
+                                <RadzenGridColumn TItem="EmailTransaction" Property="Environment" Title="Environment" />
+                                <RadzenGridColumn TItem="EmailTransaction" Property="Attachments" Title="Attachments" />
+                            </Columns>
+                        </RadzenGrid>
+                    </Column>
+                </Row>
+            </CardBody>
+        </Card>
+    </Column>
+</Row>
+
+@code {
+}
+

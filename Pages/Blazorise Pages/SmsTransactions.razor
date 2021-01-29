@@ -1,0 +1,120 @@
+@page "/blazorsmstransactions"
+
+@inherits SmsTransactionsBase;
+@using RestClient.Net;
+@using Models;
+@using FxaPortal.Services;
+@using Blazorise.Snackbar;
+
+<Row>
+    <Column>
+        <Card Margin="Margin.Is4.OnY">
+            <CardHeader>
+                <CardTitle>
+                    Sms Transactions
+                </CardTitle>
+            </CardHeader>
+            <CardBody>
+                <Row Margin="Margin.Is1.FromBottom">
+                    <Column ColumnSize="ColumnSize.Is12">
+                        <Button Color="Color.Success" Clicked="@OnRefreshData" Loading="isLoading" Style="float:right">Refresh</Button>
+                    </Column>
+                </Row>
+                <Row></Row>
+                <Row>
+                    <Column ColumnSize="ColumnSize.Is12">
+                        <DataGrid TItem="SmsTransaction"
+                                  Data="smsTransactionList"
+                                  ReadData="@OnReadData"
+                                  @bind-SelectedRow="@selectedSmsTransaction"
+                                  TotalItems="totalSmsTransactions"
+                                  Filterable="true"
+                                  PageSize="20"
+                                  Sortable="true"
+                                  Striped="true"
+                                  Bordered="true"
+                                  Responsive="true"
+                                  RowClicked="@OnRowClicked"
+                                  SelectedRowStyling="@OnSelectedRowStyling"
+                                  ShowPager="true"
+                                  PageChanged="@OnPageChanged">
+                            <LoadingTemplate>
+                                <div class="box">
+                                    <progress class="progress is-small is-primary" max="100" />
+                                </div>
+                            </LoadingTemplate>
+                            <DataGridColumns>
+                                <DataGridColumn TItem="SmsTransaction" Field="@nameof(SmsTransaction.SmsId)" Caption="#" Displayable="false" />
+                                <DataGridColumn TItem="SmsTransaction" Field="@nameof(SmsTransaction.DocumentId)" Caption="Document Id" />
+                                <DataGridColumn TItem="SmsTransaction" Field="@nameof(SmsTransaction.ToField)" Caption="To" />
+                                <DataGridColumn TItem="SmsTransaction" Field="@nameof(SmsTransaction.FromField)" Caption="From" />
+                                <DataGridColumn TItem="SmsTransaction" Field="@nameof(SmsTransaction.Message)" Caption="Message" />
+                                <DataGridColumn TItem="SmsTransaction" Field="@nameof(SmsTransaction.UniqueId)" Caption="Id" />
+                                <DataGridColumn TItem="SmsTransaction" Field="@nameof(SmsTransaction.ScheduleRunDate)" Caption="Schedule Run Date">
+                                    <DisplayTemplate>
+                                        @{
+                                            @(context.ScheduleRunDate.Value.ToShortDateString())
+                                        }
+                                    </DisplayTemplate>
+                                </DataGridColumn>
+                                <DataGridColumn TItem="SmsTransaction" Field="@nameof(SmsTransaction.ScheduleRunTime)" Caption="Schedule Run Time">
+                                    <DisplayTemplate>
+                                        @{
+                                            @(string.Format("{0:hh\\:mm}", TimeSpan.FromMinutes(context.ScheduleRunTime)))
+                                        }
+                                    </DisplayTemplate>
+                                </DataGridColumn>
+                                <DataGridColumn TItem="SmsTransaction" Field="@nameof(SmsTransaction.ActualRunDate)" Caption="Actual Run Date">
+                                    <DisplayTemplate>
+                                        @{
+                                            @(context.ActualRunDate.Value.ToShortDateString())
+                                        }
+                                    </DisplayTemplate>
+                                </DataGridColumn>
+                                <DataGridColumn TItem="SmsTransaction" Field="@nameof(SmsTransaction.ActualRunTime)" Caption="Actual Run Time">
+                                    <DisplayTemplate>
+                                        @{
+                                            @(string.Format("{0:hh\\:mm}", TimeSpan.FromMinutes(context.ActualRunTime)))
+                                        }
+                                    </DisplayTemplate>
+                                </DataGridColumn>
+                                <DataGridColumn TItem="SmsTransaction" Field="@nameof(SmsTransaction.Response)" Caption="Response" />
+                                <DataGridColumn TItem="SmsTransaction" Field="@nameof(SmsTransaction.Status)" Caption="Status" />
+                            </DataGridColumns>
+                        </DataGrid>
+                        </Column>
+                    </Row>
+            </CardBody>
+        </Card>
+    </Column>
+</Row>
+
+<Snackbar @ref="snackbar" Color="SnackbarColor.Success">
+    <SnackbarBody>
+        Save was succesful
+    </SnackbarBody>
+</Snackbar>
+
+<Snackbar @ref="snackbarXmlWarn" Color="SnackbarColor.Warning">
+    <SnackbarBody>
+        Metadata is not valid XML
+    </SnackbarBody>
+</Snackbar>
+
+<Snackbar @ref="snackbarJsonWarn" Color="SnackbarColor.Warning">
+    <SnackbarBody>
+        Metadata is not valid Json
+    </SnackbarBody>
+</Snackbar>
+
+<Snackbar @ref="snackbarFail" Color="SnackbarColor.Danger">
+    <SnackbarBody>
+        Save has failed
+    </SnackbarBody>
+</Snackbar>
+
+<Snackbar @ref="snackbarReadFail" Color="SnackbarColor.Danger">
+    <SnackbarBody>
+        Failed to read the data
+    </SnackbarBody>
+</Snackbar>

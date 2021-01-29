@@ -1,0 +1,116 @@
+@page "/blazortransactions"
+
+@inherits TransactionsBase;
+@using RestClient.Net;
+@using Models;
+@using FxaPortal.Services;
+@using Blazorise.Snackbar;
+
+<Row>
+    <Column>
+        <Card Margin="Margin.Is4.OnY">
+            <CardHeader>
+                <CardTitle>
+                    Transactions
+                </CardTitle>
+            </CardHeader>
+            <CardBody>
+                <Row Margin="Margin.Is1.FromBottom">
+                    <Column ColumnSize="ColumnSize.Is12">
+                        <Button Color="Color.Success" Clicked="@OnRefreshData" Loading="isLoading" Style="float:right">Refresh</Button>
+                    </Column>
+                </Row>
+                <Row></Row>
+                <Row>
+                    <Column ColumnSize="ColumnSize.Is12">
+                        <DataGrid TItem="Transaction"
+                                  Data="transactionList"
+                                  ReadData="@OnReadData"
+                                  @bind-SelectedRow="@selectedTransaction"
+                                  TotalItems="totalTransactions"
+                                  Filterable="true"
+                                  PageSize="20"
+                                  Sortable="true"
+                                  Striped="true"
+                                  Bordered="true"
+                                  Responsive="true"
+                                  RowClicked="@OnRowClicked"
+                                  SelectedRowStyling="@OnSelectedRowStyling"
+                                  ShowPager="true"
+                                  PageChanged="@OnPageChanged">
+                            <LoadingTemplate>
+                                <div class="box">
+                                    <progress class="progress is-small is-primary" max="100" />
+                                </div>
+                            </LoadingTemplate>
+                            <DataGridColumns>
+                                <DataGridColumn TItem="Transaction" Field="@nameof(Transaction.DocumentId)" Caption="#" Displayable="false" />
+                                <DataGridColumn TItem="Transaction" Field="@nameof(Transaction.BatchRunNumber)" Caption="Run Number" />
+                                <DataGridColumn TItem="Transaction" Field="@nameof(Transaction.BatchAbbr)" Caption="Batch Type" />
+                                <DataGridColumn TItem="Transaction" Field="@nameof(Transaction.TransactionType)" Caption="Transaction Type" />
+                                <DataGridColumn TItem="Transaction" Field="@nameof(Transaction.IssueDate)" Caption="Issue Date" Displayable="false" />
+                                <DataGridColumn TItem="Transaction" Field="@nameof(Transaction.PolicyNumber)" Caption="Policy Number" />
+                                <DataGridColumn TItem="Transaction" Field="@nameof(Transaction.CoverType)" Caption="Covertype" />
+                                <DataGridColumn TItem="Transaction" Field="@nameof(Transaction.NoticeType)" Caption="Notice Type" Displayable="false" />
+                                <DataGridColumn TItem="Transaction" Field="@nameof(Transaction.Status)" Caption="Status" />
+                                <DataGridColumn TItem="Transaction" Field="@nameof(Transaction.TransactionDate)" Caption="Transaction Date" />
+                            </DataGridColumns>
+                        </DataGrid>
+                        </Column>
+                    </Row>
+            </CardBody>
+        </Card>
+    </Column>
+</Row>
+@if (selectedTransaction != null) // Only show the button if they have selected a Transaction
+{ 
+<Row Style="padding-bottom: 10px; padding-left: 10px ">
+    <Column>
+        <Button Color="Color.Primary" Clicked="@OnViewMetadataClicked">View Metadata</Button>
+    </Column>
+</Row>
+}
+<Row>
+    <Column>
+        <Card>
+            <CardHeader>
+                <CardTitle>
+                    Metadata
+                </CardTitle>
+            </CardHeader>
+            <CardBody>
+                <MemoEdit ReadOnly="true" @bind-Text="@currentMetaData"></MemoEdit>
+            </CardBody>
+        </Card>
+    </Column>
+</Row>
+
+<Snackbar @ref="snackbar" Color="SnackbarColor.Success">
+    <SnackbarBody>
+        Save was succesful
+    </SnackbarBody>
+</Snackbar>
+
+<Snackbar @ref="snackbarXmlWarn" Color="SnackbarColor.Warning">
+    <SnackbarBody>
+        Metadata is not valid XML
+    </SnackbarBody>
+</Snackbar>
+
+<Snackbar @ref="snackbarJsonWarn" Color="SnackbarColor.Warning">
+    <SnackbarBody>
+        Metadata is not valid Json
+    </SnackbarBody>
+</Snackbar>
+
+<Snackbar @ref="snackbarFail" Color="SnackbarColor.Danger">
+    <SnackbarBody>
+        Save has failed
+    </SnackbarBody>
+</Snackbar>
+
+<Snackbar @ref="snackbarReadFail" Color="SnackbarColor.Danger">
+    <SnackbarBody>
+        Failed to read the data
+    </SnackbarBody>
+</Snackbar>

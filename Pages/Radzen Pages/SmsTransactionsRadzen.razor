@@ -1,0 +1,49 @@
+@page "/smstransaction"
+
+@inherits SmsTransactionRadzenBase;
+@using RestClient.Net;
+@using Models;
+@using Blazorise.DataGrid
+@using Blazorise.Snackbar
+@using Radzen.Blazor
+@using Radzen;
+@using Newtonsoft.Json;
+@using System.Net.Http.Headers;
+@using FxaPortal.Services;
+
+<Row>
+    <Column>
+        <Card Margin="Margin.Is4.OnY">
+            <CardHeader>
+                <CardTitle>Sms Transactions</CardTitle>
+            </CardHeader>
+            <CardBody>
+                <Row Margin="Margin.Is1.FromBottom">
+                    <Column ColumnSize="ColumnSize.Is12">
+                        <RadzenButton Click="@RefreshData" Text="Refresh" Icon="@refreshIcon" Style="margin-bottom: 5px; width:120px; float: right"></RadzenButton>
+                    </Column>
+                </Row>
+                <Row>
+                    <Column>
+                        <RadzenGrid Count="@count" Data="@smsList" LoadData="@LoadData" AllowSorting="true" AllowFiltering="true" AllowPaging="true" PageSize="25" TItem="SmsTransaction" ColumnWidth="200px">
+                            <Columns>
+                                <RadzenGridColumn TItem="SmsTransaction" Property="SmsId" Title="#" Visible="false" />
+                                <RadzenGridColumn TItem="SmsTransaction" Property="DocumentId" Title="Document Id" Width="50px"/>
+                                <RadzenGridColumn TItem="SmsTransaction" Property="ToField" Title="To" Width="150px"/>
+                                <RadzenGridColumn TItem="SmsTransaction" Property="FromField" Title="From" Width="150px"/>
+                                <RadzenGridColumn TItem="SmsTransaction" Property="Message" Title="Message" Width="300px"/>
+                                <RadzenGridColumn TItem="SmsTransaction" Property="UniqueId" Title="Id" Width="250px"/>
+                                <RadzenGridColumn TItem="SmsTransaction" Property="TransactionDate" Title="Trans. Date" />
+                                <RadzenGridColumn TItem="SmsTransaction" Property="ScheduleRunDate" Title="Schedule Run Date" />
+                            </Columns>
+                        </RadzenGrid>
+                    </Column>
+                </Row>
+            </CardBody>
+        </Card>
+    </Column>
+</Row>
+
+@code {
+ }
+

@@ -1,0 +1,61 @@
+@page "/batches"
+
+@inherits BatchesRadzenBase;
+@using RestClient.Net;
+@using Models;
+@using FxaPortal.Services;
+@using Radzen.Blazor;
+@using Radzen;
+
+<Row>
+    <Column>
+        <Card Margin="Margin.Is4.OnY">
+            <CardHeader>
+                <CardTitle>Batches</CardTitle>
+            </CardHeader>
+            <CardBody>
+                <Row>
+                    <Column>
+                        <RadzenButton Icon="add_circle_outline" style="margin-bottom: 10px" Text="Add" Click="@BtnAddClick">
+                        </RadzenButton>
+                    </Column>
+                </Row>
+                <Row>
+                    <Column>
+                        <RadzenGrid @ref="batchesGrid" Count="@batchCount" Data="@batchList" LoadData="@LoadBatchData" AllowSorting="true" AllowFiltering="true" AllowPaging="true" PageSize="18" TItem="Batch" ColumnWidth="200px">
+                            <Columns>
+                                <RadzenGridColumn TItem="Batch" Context="Context" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="40px">
+                                    <Template Context="batch">
+                                        <RadzenButton Icon="edit" Size="Radzen.ButtonSize.Small" Click="@(args => EditRow(batch))">
+                                        </RadzenButton>
+                                    </Template>
+                                </RadzenGridColumn>
+                                <RadzenGridColumn TItem="Batch" Property="BatchId" Title="#" Visible="false" />
+                                <RadzenGridColumn TItem="Batch" Property="BatchBusName" Title="Bus Name" />
+                                <RadzenGridColumn TItem="Batch" Property="BatchAbbr" Title="Batch Abbr" />
+                                <RadzenGridColumn TItem="Batch" Property="AllowPostal" Type="boolean" Title="Postal">
+                                    <Template Context="batch">
+                                        <RadzenCheckBox style="width: 20px" @bind-Value="@(batch.AllowPostal)" Disabled="true" Name="AllowPostal">
+                                        </RadzenCheckBox>
+                                    </Template>
+                                </RadzenGridColumn>
+                                <RadzenGridColumn TItem="Batch" Property="AllowEmail" Type="boolean" Title="Email">
+                                    <Template Context="batch">
+                                        <RadzenCheckBox style="width: 20px" @bind-Value="@(batch.AllowEmail)"  Disabled="true" Name="AllowEmail">
+                                        </RadzenCheckBox>
+                                    </Template>
+                                </RadzenGridColumn>
+                                <RadzenGridColumn TItem="Batch" Property="AllowSms" Type="boolean" Title="Sms">
+                                    <Template Context="batch">
+                                        <RadzenCheckBox style="width: 20px" @bind-Value="@(batch.AllowSms)"  Disabled="true" Name="AllowSms">
+                                        </RadzenCheckBox>
+                                    </Template>
+                                </RadzenGridColumn>
+                            </Columns>
+                        </RadzenGrid>
+                    </Column>
+                </Row>
+            </CardBody>
+        </Card>
+    </Column>
+</Row>
